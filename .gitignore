@@ -1,0 +1,10 @@
+# Yelp dataset: too large for GitHub and not redistributable
+Yelp JSON/
+*.tar
+
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.venv/
+.venv/
