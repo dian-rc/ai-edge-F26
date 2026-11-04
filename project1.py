@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-TAR_PATH = Path(__file__).parent / "Yelp JSON" / "yelp_dataset.tar"
+TAR_PATH = Path(__file__).parent / "data" / "yelp_dataset.tar"
 
 
 def load_yelp(name, nrows=None):
