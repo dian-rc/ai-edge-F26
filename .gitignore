@@ -8,3 +8,10 @@ __pycache__/
 .ipynb_checkpoints/
 *.venv/
 .venv/
+
+# Local data files (Yelp extracts, CSVs, etc.) stay off GitHub
+data/
+
+data/
+models/
+.DS_Store
