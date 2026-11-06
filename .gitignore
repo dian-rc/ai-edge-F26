@@ -1,17 +1,21 @@
 # Yelp dataset: too large for GitHub and not redistributable
+data/
 Yelp JSON/
 *.tar
 
-.DS_Store
+# Saved models: on each laptop only
+models/
+
+# Secrets: API keys live in .env and must never be committed
+.env
+.env.*
+
+# Python environment and caches
+.venv/
+*.venv/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
-*.venv/
-.venv/
 
-# Local data files (Yelp extracts, CSVs, etc.) stay off GitHub
-data/
-
-data/
-models/
+# macOS
 .DS_Store
