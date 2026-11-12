@@ -28,16 +28,22 @@ RESTAURANT_CATEGORY = "Restaurants"
 # whether the restaurant closes in the HORIZON_MONTHS after it (calendar 2019).
 CUTOFF = pd.Timestamp("2018-12-31")
 
-# Training cutoff: one horizon earlier, so the model is trained on 2018 closures
-# and tested on 2019 closures (a time-based split; no 2019 data in training).
-TRAIN_CUTOFF = pd.Timestamp("2017-12-31")
-
 # A restaurant counts as active at a cutoff if it has at least one review in
 # this many months before the cutoff. Sensitivity check: 3, 6 and 12.
 ACTIVE_WINDOW_MONTHS = 6
 
 # Prediction horizon in months.
 HORIZON_MONTHS = 12
+
+# Training cutoff: one horizon earlier, so the model is trained on 2018 closures
+# and tested on 2019 closures (a time-based split; no 2019 data in training).
+# Calculated from HORIZON_MONTHS so changing the horizon can never leak test-year
+# labels into training. With a 12-month horizon this is 2017-12-31.
+TRAIN_CUTOFF = CUTOFF - pd.DateOffset(months=HORIZON_MONTHS)
+
+# Flagged-closed restaurants whose last review is on or before the cutoff:
+# "closed" labels them 1 (default); "exclude" drops them (sensitivity check).
+PRE_CUTOFF_CLOSURES = "closed"
 
 # ---- Reproducibility -----------------------------------------------------
 RANDOM_SEED = 42
