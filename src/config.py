@@ -11,6 +11,8 @@ import pandas as pd
 # ---- Paths ---------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
+# Saved models and caches (e.g. review embeddings): on each laptop only, never committed.
+MODELS_DIR = PROJECT_ROOT / "models"
 
 BUSINESS_PATH = DATA_DIR / "yelp_academic_dataset_business.json"
 REVIEW_PATH = DATA_DIR / "yelp_academic_dataset_review.json"
