@@ -20,6 +20,8 @@ It prints the tables and saves to results/:
     model_comparison.png          average precision chart for the slides
     combined_vs_tabular.csv       bootstrap check that the gain from text is real
     impact_combined_<label>.csv   dollar impact (src.impact) including the combined model
+    calibration_combined_<label>.csv / .png
+                                  calibration of the combined model (src.impact's check)
 """
 
 import numpy as np
@@ -34,7 +36,7 @@ from sklearn.preprocessing import StandardScaler
 from src import config
 from src.baseline import star_rating_scores
 from src.evaluate import evaluate
-from src.impact import impact_table
+from src.impact import calibration_table, impact_table, plot_calibration
 from src.labels import train_test_split
 from src.tabular import DEFAULT_GROUPS, HGB_PARAMS, build_features, columns_for, load_inputs
 from src.text import build_text_features, load_text_reviews
@@ -202,6 +204,16 @@ if __name__ == "__main__":
 
         impact = impact_table([r for r in results if r["model"] != "Random review"])
         impact.to_csv(RESULTS_DIR / f"impact_combined_{label}.csv")
+
+        # Calibration of the combined model, with the same check as the tabular model (src.impact).
+        p = scores["Tabular + text"].reindex(test["business_id"]).to_numpy()
+        cal = calibration_table(test["closed"], p)
+        cal.to_csv(RESULTS_DIR / f"calibration_combined_{label}.csv")
+        plot_calibration(cal, RESULTS_DIR / f"calibration_combined_{label}.png",
+                         f"Tabular + text model calibration, 2019 test set ({label!r} label)")
+        print(f"\n=== Calibration of Tabular + text, {label!r} label "
+              f"(predicted {p.mean():.1%} closures on average, actual {test['closed'].mean():.1%})")
+        print(cal.round(3).to_string())
         print(f"\n=== {label!r} label: dollar impact per 1,000 loans, reviewing the riskiest 10%")
         print(impact[["loss_avoided", "share_of_loss_avoided", "false_alarms",
                       "breakeven_per_false_alarm"]].round(3).to_string())
