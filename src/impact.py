@@ -30,7 +30,7 @@ import pandas as pd
 
 from src import config
 from src.evaluate import evaluate
-from src.features import add_rating_features
+from src.baseline import star_rating_scores
 from src.labels import train_test_split
 from src.tabular import (DEFAULT_GROUPS, NO_RECENCY_GROUPS, build_features, fit_model,
                          load_inputs, predict)
@@ -161,12 +161,6 @@ def fit_and_score(restaurants, reviews, window, label, groups_list):
     return test, scores
 
 
-def star_scores(test, reviews):
-    """Star-rating rule: minus the average rating as of the cutoff (higher = riskier)."""
-    rated = add_rating_features(test, reviews[["business_id", "date", "stars"]])
-    return pd.Series(-rated["avg_stars"].to_numpy(), index=rated["business_id"].to_numpy())
-
-
 def _money(df, cols):
     out = df.copy().astype(object)
     for c in cols:
@@ -206,7 +200,8 @@ if __name__ == "__main__":
             print(cal.round(3).to_string())
 
             # Dollar impact.
-            results.append(evaluate(test, star_scores(test, reviews), "Star-rating rule",
+            stars = reviews[["business_id", "date", "stars"]]
+            results.append(evaluate(test, star_rating_scores(test, stars), "Star-rating rule",
                                     probabilities=False))
             table = impact_table(results)
             impact_tables[label] = table
