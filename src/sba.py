@@ -35,9 +35,14 @@ from src import config
 
 SBA_7A_PATH = config.DATA_DIR / "FOIA_7a_FY2010_FY2019_asof_260930.csv"
 
-SBA_COLUMNS = ["GrossApproval", "SBAGuaranteedApproval", "ApprovalDate", "ApprovalFY",
-               "NaicsCode", "FranchiseCode", "TermInMonths", "LoanStatus",
-               "ChargeOffDate", "GrossChargeOffAmount"]
+SBA_COLUMNS = ["AsOfDate", "GrossApproval", "SBAGuaranteedApproval", "ApprovalDate", "ApprovalFY",
+               "FirstDisbursementDate", "NaicsCode", "FranchiseCode", "TermInMonths", "LoanStatus",
+               "PaidInFullDate", "ChargeOffDate", "GrossChargeOffAmount"]
+DATE_COLUMNS = ["AsOfDate", "ApprovalDate", "FirstDisbursementDate", "PaidInFullDate", "ChargeOffDate"]
+
+# Calendar years for the annual charge-off rate: enough loans outstanding, and
+# before the pandemic (as with the Yelp cutoff).
+ANNUAL_RATE_YEARS = (2012, 2019)
 
 RESTAURANT_NAICS_PREFIX = "7225"                                     # NAICS 2012 onwards
 RESTAURANT_NAICS_PRE2012 = {"722110", "722211", "722212", "722213"}  # NAICS 2007
@@ -51,7 +56,7 @@ def load_sba_loans(path=SBA_7A_PATH):
             f"{path} not found. Download 'FOIA - 7(a) (FY2010-FY2019)' from "
             "https://data.sba.gov/en/dataset/7-a-504-foia into data/")
     loans = pd.read_csv(path, usecols=SBA_COLUMNS, dtype={"NaicsCode": str, "FranchiseCode": str},
-                        parse_dates=["ApprovalDate", "ChargeOffDate"])
+                        parse_dates=DATE_COLUMNS)
     loans = loans[loans["LoanStatus"].ne("CANCLD")].copy()
     naics = loans["NaicsCode"].fillna("")
     loans["is_restaurant"] = naics.str.startswith(RESTAURANT_NAICS_PREFIX) | naics.isin(RESTAURANT_NAICS_PRE2012)
@@ -100,6 +105,24 @@ def figures_table(loans):
         "Other industries, FY2010-19": loan_figures(loans, False, None),
     }
     return pd.DataFrame(rows)
+
+
+def annual_charge_off_rate(loans, restaurants=True, years=ANNUAL_RATE_YEARS):
+    """Charge-offs per loan-year outstanding, counted within calendar `years`.
+
+    A loan is outstanding from its first disbursement (approval date if missing)
+    until it is repaid, charged off, or the file's as-of date. Only the part of
+    that span inside `years` counts, and only charge-offs dated inside it. This
+    is comparable to the Yelp closure rate, which is also per year.
+    """
+    df = loans if restaurants is None else loans[loans["is_restaurant"] == restaurants]
+    start = pd.Timestamp(f"{years[0]}-01-01")
+    end = pd.Timestamp(f"{years[1] + 1}-01-01")
+    opened = df["FirstDisbursementDate"].fillna(df["ApprovalDate"])
+    closed = df["ChargeOffDate"].fillna(df["PaidInFullDate"]).fillna(df["AsOfDate"])
+    span = (closed.clip(upper=end) - opened.clip(lower=start)).dt.days.clip(lower=0) / 365.25
+    charge_offs = df["ChargeOffDate"].ge(start) & df["ChargeOffDate"].lt(end)
+    return charge_offs.sum() / span.sum()
 
 
 def charge_off_by_cohort(loans, restaurants=True):
