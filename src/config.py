@@ -43,8 +43,12 @@ HORIZON_MONTHS = 12
 # labels into training. With a 12-month horizon this is 2017-12-31.
 TRAIN_CUTOFF = CUTOFF - pd.DateOffset(months=HORIZON_MONTHS)
 
-# Flagged-closed restaurants whose last review is on or before the cutoff:
-# "closed" labels them 1 (default); "exclude" drops them (sensitivity check).
+# Flagged-closed restaurants whose last review is on or before the cutoff (they
+# may already have closed): "closed" labels them 1; "exclude" drops them.
+# "exclude" is the HEADLINE label (README): "closed" includes restaurants that had
+# likely already closed before the cutoff. Every reported result is computed for
+# both labels, passing pre_cutoff_closures explicitly. The default stays "closed"
+# because notebooks/dian_tabular_model.ipynb builds "exclude" from the default split.
 PRE_CUTOFF_CLOSURES = "closed"
 
 # ---- Reproducibility -----------------------------------------------------

@@ -154,11 +154,12 @@ def plot_comparison(table, path):
 
     surface, ink, muted, grid = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
     accent, base, faint = "#2a78d6", "#a3a29d", "#d6d5d0"
-    titles = {"closed": "All closures ('closed' label)",
-              "exclude": "Excluding possible pre-cutoff closures ('exclude' label)"}
+    # Headline label ("exclude") first; see README.
+    titles = {"exclude": "Headline: excluding likely pre-cutoff closures ('exclude')",
+              "closed": "For reference: all closures ('closed')"}
     top = table["avg_precision"].max() * 1.18
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharex=True, facecolor=surface)
-    for ax, label in zip(axes, LABELS):
+    for ax, label in zip(axes, titles):
         sub = table[table["label"] == label].set_index("model").loc[MODEL_ORDER]
         colors = [accent if m == "Tabular + text" else faint if m == "Random review" else base
                   for m in sub.index]

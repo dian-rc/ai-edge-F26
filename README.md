@@ -16,8 +16,9 @@ next 12 months from public signals: business attributes, review statistics, and 
 - **Label:** Yelp gives an open/closed flag but no closing date, so a restaurant counts as closed
   if it is flagged closed and its last review falls in 2019. Flagged-closed restaurants whose last
   review is *before* the cutoff may already have closed; the `closed` label counts them as
-  closures, the stricter `exclude` label drops them. We report both and treat `exclude` as the
-  conservative headline, since a lender's applicants are still operating.
+  closures, the stricter `exclude` label drops them.
+- **Headline label: `exclude`.** `closed` includes restaurants that had likely already closed
+  before the cutoff, which inflates its scores; `closed` results are shown alongside for reference.
 - **Split by time:** train on the 2017-12-31 snapshot (2018 closures, 28,807 restaurants), test on
   the 2018-12-31 snapshot (2019 closures, 30,080 restaurants, 9.4% closed; `exclude`: 29,041,
   6.2% closed).

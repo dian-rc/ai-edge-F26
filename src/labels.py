@@ -23,8 +23,9 @@ Label rules, for a cutoff date and the settings in src/config.py:
   cutoff. It may already have closed by the cutoff. PRE_CUTOFF_CLOSURES decides
   what happens to them:
     "closed"  (default) label them 1, consistent with the target above;
-    "exclude" drop them, as neither a clean positive nor a clean negative
-              (sensitivity check).
+    "exclude" drop them, as neither a clean positive nor a clean negative.
+              This is the headline label in the README; results are reported
+              for both.
 """
 
 import pandas as pd
