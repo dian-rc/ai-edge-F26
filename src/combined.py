@@ -12,8 +12,7 @@ training restaurant is scored by a text model fitted on the other four fifths
 of the training year, never on itself. Test rows are scored by a text model
 fitted on the whole training year.
 
-Run `python -m src.combined` (about 5 minutes once the embedding cache exists)
-to compare, on the 2019 test set and for both labels:
+Run `python -m src.combined` to compare, on the 2019 test set and for both labels:
     random review, star rating, recency, text, tabular, tabular + text
 It prints the tables and saves to results/:
     model_comparison.csv          evaluate() metrics for every model and label
@@ -22,6 +21,10 @@ It prints the tables and saves to results/:
     impact_combined_<label>.csv   dollar impact (src.impact) including the combined model
     calibration_combined_<label>.csv / .png
                                   calibration of the combined model (src.impact's check)
+
+Run time: the first run embeds about 1.4M reviews and caches them in models/
+(about 12 minutes on an Apple-silicon GPU, 1 to 2 hours on a laptop CPU); after
+that, about 1 to 5 minutes depending on the laptop.
 """
 
 import numpy as np
@@ -38,7 +41,9 @@ from src.baseline import star_rating_scores
 from src.evaluate import evaluate
 from src.impact import calibration_table, impact_table, plot_calibration
 from src.labels import train_test_split
-from src.tabular import DEFAULT_GROUPS, HGB_PARAMS, build_features, columns_for, load_inputs
+from src.tabular import (DEFAULT_GROUPS, HGB_PARAMS, build_features, columns_for, fit_model,
+                         load_inputs)
+from src.tabular import predict as predict_tabular
 from src.text import build_text_features, load_text_reviews
 
 RESULTS_DIR = config.PROJECT_ROOT / "results"
@@ -102,9 +107,7 @@ def score_all(label, restaurants, tab_reviews, text_reviews):
     y = train["closed"].to_numpy()
 
     text_train, text_test = text_scores(X_text_train, y, X_text_test)
-    tabular = HistGradientBoostingClassifier(categorical_features="from_dtype", **HGB_PARAMS)
-    cols = columns_for(X_tab_train, DEFAULT_GROUPS)
-    tabular.fit(X_tab_train[cols], y)
+    tabular = fit_model(X_tab_train, y, groups=DEFAULT_GROUPS)
     combined = fit_combined(X_tab_train, text_train, y)
 
     ids = test["business_id"].to_numpy()
@@ -114,7 +117,7 @@ def score_all(label, restaurants, tab_reviews, text_reviews):
         "Star rating": star_rating_scores(test, stars),
         "Recency": pd.Series(X_tab_test["days_since_last"].to_numpy(), index=ids),
         "Text": pd.Series(text_test, index=ids),
-        "Tabular": pd.Series(tabular.predict_proba(X_tab_test[cols])[:, 1], index=ids),
+        "Tabular": pd.Series(predict_tabular(tabular, X_tab_test), index=ids),
         "Tabular + text": pd.Series(predict_combined(combined, X_tab_test, text_test), index=ids),
     }
     return test, scores
