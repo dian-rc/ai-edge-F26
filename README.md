@@ -115,8 +115,14 @@ models/     review embedding cache (local only, git-ignored)
 
 ## Use of AI
 
-<!-- TODO (Mariana): confirm whether the syllabus requires an AI-use disclosure statement, and
-     replace this section with it. -->
-We used Claude Code (Anthropic) to help write and review code, run analyses and draft
-documentation. Every result was checked by a team member, and each of us can explain our part of
-the code.
+As the course encourages, we used generative AI throughout: Claude Code (Anthropic) helped write
+and modify code, debug, explore the data, make charts, and draft documentation, including this
+README. Its contributions are attributed in the history: commits it helped write carry a
+"Co-Authored-By: Claude" line, and pull requests it helped draft say "Generated with Claude Code".
+
+The team made and owns the decisions: the stakeholder and problem framing, the cutoff and label
+design, the leakage rules, the model comparison, and the interpretation. We verified the results
+rather than taking them on trust: the evaluation function reproduces the tabular model's
+published scores, results were rerun from scratch on a second laptop with matching outputs, and
+each pull request's description records how it was checked. Responsibility for the correctness
+of everything submitted remains with us.
