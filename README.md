@@ -63,7 +63,7 @@ are excluded from the headline models: they are 2022 snapshots that leak which r
 
 Tested with Python 3.13.15 on two laptops, reproducing the files in `results/`. **The text steps
 need about 18 GB of RAM** (they load all restaurant review text) and use the GPU if available.
-Times below are from an Apple-silicon Mac; slower laptops can take a few times longer.
+Times below are from Apple-silicon Macs; the first `src.combined` run varied most between laptops.
 
 1. **Environment:** create a virtual environment and install `requirements.txt`
    (`python -m venv .venv`, activate it, `pip install -r requirements.txt`).
@@ -78,7 +78,7 @@ Times below are from an Apple-silicon Mac; slower laptops can take a few times l
 | `python -m src.labels` | ~1 min | Restaurants and closure rates per split (should match the numbers above) |
 | `python -m src.baseline` | ~1 min | Star-rating rule results |
 | `python -m src.impact` | ~2 min | Tabular model: calibration, dollar impact, active-window sensitivity, in `results/` |
-| `python -m src.combined` | First run: ~15 min (Apple-silicon GPU) to 1-2 hours (laptop CPU); then 1-5 min | All models compared, bootstrap, impact and calibration of the combined model, in `results/` |
+| `python -m src.combined` | First run: 15 min to 2 hours, depending on the laptop (keep it plugged in); then 1-5 min | All models compared, bootstrap, impact and calibration of the combined model, in `results/` |
 
 The first `src.combined` run embeds about 1.4M reviews and caches them in `models/`; that is
 almost all of its run time. Results are deterministic: rerunning reproduces the files in
@@ -86,7 +86,9 @@ almost all of its run time. Results are deterministic: rerunning reproduces the 
 
 Optional: `python -m src.sba` re-derives the loan assumptions hard-coded in `src/impact.py`. It
 needs "FOIA - 7(a) (FY2010-FY2019)" from [data.sba.gov](https://data.sba.gov/en/dataset/7-a-504-foia),
-downloaded in a browser into `data/`.
+downloaded in a browser (the site blocks scripts) and saved as
+`data/FOIA_7a_FY2010_FY2019_asof_260930.csv`. A newer download has a different "asof" date in its
+name: rename it, or change `SBA_7A_PATH` in `src/sba.py`.
 
 ## Repository layout
 

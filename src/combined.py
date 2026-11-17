@@ -23,8 +23,8 @@ It prints the tables and saves to results/:
                                   calibration of the combined model (src.impact's check)
 
 Run time: the first run embeds about 1.4M reviews and caches them in models/
-(about 12 minutes on an Apple-silicon GPU, 1 to 2 hours on a laptop CPU); after
-that, about 1 to 5 minutes depending on the laptop.
+(15 minutes to 2 hours depending on the laptop, even among Apple-silicon Macs;
+keep it plugged in); after that, about 1 to 5 minutes.
 """
 
 import numpy as np
